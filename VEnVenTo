@@ -1,0 +1,37 @@
+from qiskit import QuantumCircuit, Aer, execute
+
+# Crear el circuito cuántico con dos qubits y dos bits clásicos
+qc = QuantumCircuit(2, 2)
+
+# Paso de codificación
+def encode_superdense(qc, a, b):
+    if b == 1:
+        qc.x(1)
+    if a == 1:
+        qc.z(0)
+
+# Paso de decodificación
+def decode_superdense(qc):
+    qc.cx(0, 1)
+    qc.h(0)
+    qc.measure([0, 1], [0, 1])
+
+# Definir los bits clásicos a enviar
+a = 0
+b = 1
+
+# Realizar la codificación y decodificación en el circuito cuántico
+encode_superdense(qc, a, b)
+decode_superdense(qc)
+
+# Ejecutar el circuito cuántico en un simulador local
+simulator = Aer.get_backend('qasm_simulator')
+job = execute(qc, simulator, shots=1)
+result = job.result()
+counts = result.get_counts(qc)
+bitstring = list(counts.keys())[0]
+
+# Imprimir los bits clásicos decodificados
+decoded_a = int(bitstring[0])
+decoded_b = int(bitstring[1])
+print("Decoded bits: a =", decoded_a, "b =", decoded_b)
